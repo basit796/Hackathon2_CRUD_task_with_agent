@@ -1,0 +1,2 @@
+# Optional dependencies for enhanced CLI output
+rich>=13.0.0
