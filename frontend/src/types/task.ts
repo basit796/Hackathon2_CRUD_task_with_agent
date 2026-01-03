@@ -7,18 +7,28 @@ export interface Task {
   deadline: string | null;
   created_at: string;
   updated_at: string;
+  recurring?: RecurringPattern | null;
+}
+
+export interface RecurringPattern {
+  type: 'daily' | 'weekly' | 'monthly';
+  day_of_week?: number;
+  day_of_month?: number;
+  time?: string;
 }
 
 export interface TaskCreate {
   title: string;
   description?: string;
   deadline?: string | null;
+  recurring?: RecurringPattern | null;
 }
 
 export interface TaskUpdate {
   title?: string;
   description?: string;
   deadline?: string | null;
+  recurring?: RecurringPattern | null;
 }
 
 export interface TasksResponse {
