@@ -8,6 +8,10 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import TaskList from '@/components/TaskList';
 import TaskForm from '@/components/TaskForm';
 import { checkRecurringTaskNotifications, requestNotificationPermission } from '@/lib/notifications';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Plus, Search, Filter, ArrowUpDown, LogOut, User, CheckCircle2, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TasksPage() {
   const { user, logout } = useAuth();
@@ -25,7 +29,7 @@ export default function TasksPage() {
     if (user) {
       loadTasks();
       requestNotificationPermission();
-      
+
       const notificationInterval = setInterval(() => {
         if (tasks.length > 0) {
           checkRecurringTaskNotifications(tasks);
@@ -44,7 +48,7 @@ export default function TasksPage() {
 
   const loadTasks = async () => {
     if (!user) return;
-    
+
     try {
       setIsLoading(true);
       setError(null);
@@ -59,7 +63,7 @@ export default function TasksPage() {
 
   const handleCreateTask = async (data: TaskCreate) => {
     if (!user) return;
-    
+
     try {
       setIsSubmitting(true);
       setError(null);
@@ -75,7 +79,7 @@ export default function TasksPage() {
 
   const handleUpdateTask = async (data: TaskUpdate) => {
     if (!user || !editingTask) return;
-    
+
     try {
       setIsSubmitting(true);
       setError(null);
@@ -91,7 +95,7 @@ export default function TasksPage() {
 
   const handleToggleTask = async (taskId: string) => {
     if (!user) return;
-    
+
     try {
       setError(null);
       await api.toggleTaskCompletion(user.id, taskId);
@@ -103,7 +107,7 @@ export default function TasksPage() {
 
   const handleDeleteTask = async (taskId: string) => {
     if (!user) return;
-    
+
     try {
       setError(null);
       await api.deleteTask(user.id, taskId);
@@ -132,109 +136,131 @@ export default function TasksPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-light via-white to-blue-50">
-        <header className="glass-effect shadow-elegant border-b border-gray-200 sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+        {/* Background Gradients */}
+        <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-50 animate-pulse-slow"></div>
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-3xl opacity-50 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+        </div>
+
+        <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-900/80 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <div className="bg-gradient-to-br from-primary to-secondary p-3 rounded-xl shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
+                <div className="bg-gradient-to-br from-primary to-secondary p-2.5 rounded-xl shadow-lg shadow-primary/20">
+                  <CheckCircle2 className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">My Tasks</h1>
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                  TaskMaster
+                </h1>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 font-medium hidden sm:block">{user?.email}</span>
-                <button
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+                  <User className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-slate-300">{user?.email}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => window.location.href = '/profile'}
-                  className="px-4 py-2 text-sm font-medium text-primary bg-blue-50 hover:bg-blue-100 rounded-lg transition-all duration-200 transform hover:scale-105"
+                  className="hidden sm:flex"
                 >
-                  👤 Profile
-                </button>
-                <button
+                  Profile
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
                   onClick={logout}
-                  className="px-4 py-2 text-sm font-medium text-danger bg-red-50 hover:bg-red-100 rounded-lg transition-all duration-200 transform hover:scale-105"
+                  className="gap-2"
                 >
-                  🚪 Logout
-                </button>
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Logout</span>
+                </Button>
               </div>
             </div>
           </div>
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl border border-red-200 animate-slideDown flex items-start gap-3">
-              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <span>{error}</span>
-            </div>
-          )}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="mb-6 p-4 bg-destructive/10 text-destructive rounded-xl border border-destructive/20 flex items-start gap-3"
+              >
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <div className="mb-8 flex flex-wrap gap-4 items-center animate-slideDown">
-            <button
-              onClick={() => setShowForm(true)}
-              className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 transform hover:scale-105 font-medium flex items-center gap-2"
+          <div className="mb-8 flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex-1 min-w-[200px] relative group"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              New Task
-            </button>
-
-            <div className="flex gap-2 items-center">
-              <label htmlFor="filter" className="text-sm font-medium text-gray-700">
-                Filter:
-              </label>
-              <select
-                id="filter"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value as FilterType)}
-                className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
-              >
-                <option value="all">All Tasks</option>
-                <option value="incomplete">Incomplete</option>
-                <option value="complete">Complete</option>
-                <option value="overdue">Overdue</option>
-                <option value="upcoming">Due Soon (24h)</option>
-                <option value="no-deadline">No Deadline</option>
-              </select>
-            </div>
-
-            <div className="flex gap-2 items-center">
-              <label htmlFor="sort" className="text-sm font-medium text-gray-700">
-                Sort:
-              </label>
-              <select
-                id="sort"
-                value={sort}
-                onChange={(e) => setSort(e.target.value as SortType)}
-                className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
-              >
-                <option value="created_desc">Newest First</option>
-                <option value="created_asc">Oldest First</option>
-                <option value="title_asc">Title (A-Z)</option>
-                <option value="title_desc">Title (Z-A)</option>
-                <option value="status">Status (Incomplete First)</option>
-                <option value="deadline_asc">Deadline (Earliest)</option>
-                <option value="deadline_desc">Deadline (Latest)</option>
-              </select>
-            </div>
-
-            <div className="flex-1 min-w-[200px] relative">
-              <input
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+              <Input
                 type="text"
-                placeholder="🔍 Search tasks..."
+                placeholder="Search tasks..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white"
+                className="pl-10 bg-slate-900/50 border-slate-800 focus:bg-slate-900 transition-all"
               />
-            </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex flex-wrap gap-3 items-center"
+            >
+              <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg border border-slate-800">
+                <Filter className="w-4 h-4 text-slate-500 ml-2" />
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value as FilterType)}
+                  className="bg-transparent border-none text-sm text-slate-300 focus:ring-0 cursor-pointer py-1.5 pr-8 pl-2"
+                >
+                  <option value="all">All Tasks</option>
+                  <option value="incomplete">Incomplete</option>
+                  <option value="complete">Complete</option>
+                  <option value="overdue">Overdue</option>
+                  <option value="upcoming">Due Soon</option>
+                  <option value="no-deadline">No Deadline</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-lg border border-slate-800">
+                <ArrowUpDown className="w-4 h-4 text-slate-500 ml-2" />
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as SortType)}
+                  className="bg-transparent border-none text-sm text-slate-300 focus:ring-0 cursor-pointer py-1.5 pr-8 pl-2"
+                >
+                  <option value="created_desc">Newest</option>
+                  <option value="created_asc">Oldest</option>
+                  <option value="title_asc">A-Z</option>
+                  <option value="title_desc">Z-A</option>
+                  <option value="status">Status</option>
+                  <option value="deadline_asc">Deadline (Earliest)</option>
+                  <option value="deadline_desc">Deadline (Latest)</option>
+                </select>
+              </div>
+
+              <Button
+                onClick={() => setShowForm(true)}
+                className="gap-2 shadow-lg shadow-primary/20"
+              >
+                <Plus className="w-4 h-4" />
+                New Task
+              </Button>
+            </motion.div>
           </div>
 
-          <div className="glass-effect rounded-2xl shadow-elegant-lg p-6 border border-gray-200">
+          <div className="relative min-h-[400px]">
             <TaskList
               tasks={tasks}
               onToggle={handleToggleTask}
@@ -244,14 +270,16 @@ export default function TasksPage() {
             />
           </div>
 
-          {(showForm || editingTask) && (
-            <TaskForm
-              task={editingTask}
-              onSubmit={handleSubmitTask}
-              onCancel={handleCancelForm}
-              isLoading={isSubmitting}
-            />
-          )}
+          <AnimatePresence>
+            {(showForm || editingTask) && (
+              <TaskForm
+                task={editingTask}
+                onSubmit={handleSubmitTask}
+                onCancel={handleCancelForm}
+                isLoading={isSubmitting}
+              />
+            )}
+          </AnimatePresence>
         </main>
       </div>
     </ProtectedRoute>

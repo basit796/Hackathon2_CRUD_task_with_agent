@@ -5,23 +5,28 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { api, getErrorMessage } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card';
+import { User, Mail, Lock, ShieldAlert, ArrowLeft, LogOut, Save, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  
+
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
-  
+
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
+
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -33,7 +38,7 @@ export default function ProfilePage() {
 
   const loadProfile = async () => {
     if (!user) return;
-    
+
     try {
       setIsLoadingProfile(true);
       const profile = await api.getProfile(user.id);
@@ -48,10 +53,10 @@ export default function ProfilePage() {
   const handleUpdateEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    
+
     setError(null);
     setSuccessMessage(null);
-    
+
     if (!email.trim() || !currentPassword) {
       setError('Email and current password are required');
       return;
@@ -72,20 +77,20 @@ export default function ProfilePage() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    
+
     setError(null);
     setSuccessMessage(null);
-    
+
     if (!currentPassword || !newPassword || !confirmPassword) {
       setError('All password fields are required');
       return;
     }
-    
+
     if (newPassword.length < 8) {
       setError('New password must be at least 8 characters');
       return;
     }
-    
+
     if (newPassword !== confirmPassword) {
       setError('New passwords do not match');
       return;
@@ -107,7 +112,7 @@ export default function ProfilePage() {
 
   const handleDeleteAccount = async () => {
     if (!user || !deletePassword) return;
-    
+
     setError(null);
     setSuccessMessage(null);
 
@@ -125,198 +130,248 @@ export default function ProfilePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow">
+      <div className="min-h-screen bg-background text-foreground relative overflow-hidden pb-20">
+        {/* Background Gradients */}
+        <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-50 animate-pulse-slow"></div>
+          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-3xl opacity-50 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+        </div>
+
+        <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-900/80 backdrop-blur-xl mb-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => router.push('/tasks')}
-                  className="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                >
-                  Back to Tasks
-                </button>
-                <button
-                  onClick={logout}
-                  className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
-                >
-                  Logout
-                </button>
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="icon" onClick={() => router.push('/tasks')}>
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                  Profile Settings
+                </h1>
               </div>
+              <Button variant="destructive" size="sm" onClick={logout} className="gap-2">
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
             </div>
           </div>
         </header>
 
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 text-red-600 rounded-md">
-              {error}
-            </div>
-          )}
-          
-          {successMessage && (
-            <div className="mb-4 p-4 bg-green-50 text-green-600 rounded-md">
-              {successMessage}
-            </div>
-          )}
+        <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="p-4 bg-destructive/10 text-destructive rounded-xl border border-destructive/20"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            {successMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="p-4 bg-green-500/10 text-green-500 rounded-xl border border-green-500/20"
+              >
+                {successMessage}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {isLoadingProfile ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : (
-            <div className="space-y-6">
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Update Email</h2>
-                <form onSubmit={handleUpdateEmail} className="space-y-4">
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                      Email Address
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      required
-                      disabled={isUpdatingEmail}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="current-password-email" className="block text-sm font-medium text-gray-700 mb-1">
-                      Current Password (required to change email)
-                    </label>
-                    <input
-                      id="current-password-email"
-                      type="password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      required
-                      disabled={isUpdatingEmail}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={isUpdatingEmail}
-                    className="px-6 py-2 bg-primary text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isUpdatingEmail ? 'Updating...' : 'Update Email'}
-                  </button>
-                </form>
-              </div>
-
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Change Password</h2>
-                <form onSubmit={handleChangePassword} className="space-y-4">
-                  <div>
-                    <label htmlFor="current-password-change" className="block text-sm font-medium text-gray-700 mb-1">
-                      Current Password
-                    </label>
-                    <input
-                      id="current-password-change"
-                      type="password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      required
-                      disabled={isChangingPassword}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 mb-1">
-                      New Password (min 8 characters)
-                    </label>
-                    <input
-                      id="new-password"
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      minLength={8}
-                      required
-                      disabled={isChangingPassword}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1">
-                      Confirm New Password
-                    </label>
-                    <input
-                      id="confirm-password"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      minLength={8}
-                      required
-                      disabled={isChangingPassword}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={isChangingPassword}
-                    className="px-6 py-2 bg-primary text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isChangingPassword ? 'Changing...' : 'Change Password'}
-                  </button>
-                </form>
-              </div>
-
-              <div className="bg-white rounded-lg shadow p-6 border-2 border-red-200">
-                <h2 className="text-xl font-semibold mb-4 text-red-600">Danger Zone</h2>
-                <p className="text-sm text-gray-600 mb-4">
-                  Once you delete your account, there is no going back. All your tasks will be permanently deleted.
-                </p>
-                
-                {!showDeleteConfirm ? (
-                  <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
-                  >
-                    Delete Account
-                  </button>
-                ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="delete-password" className="block text-sm font-medium text-gray-700 mb-1">
-                        Enter your password to confirm deletion
-                      </label>
-                      <input
-                        id="delete-password"
-                        type="password"
-                        value={deletePassword}
-                        onChange={(e) => setDeletePassword(e.target.value)}
-                        className="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                        required
-                        disabled={isDeletingAccount}
-                      />
+            <>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Mail className="w-5 h-5 text-primary" />
+                      </div>
+                      <CardTitle>Update Email</CardTitle>
                     </div>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={handleDeleteAccount}
-                        disabled={!deletePassword || isDeletingAccount}
-                        className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        {isDeletingAccount ? 'Deleting...' : 'Yes, Delete My Account'}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowDeleteConfirm(false);
-                          setDeletePassword('');
-                        }}
-                        disabled={isDeletingAccount}
-                        className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        Cancel
-                      </button>
+                    <CardDescription>Change your email address associated with this account.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleUpdateEmail} className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-300">Email Address</label>
+                        <Input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          disabled={isUpdatingEmail}
+                          icon={<User className="w-4 h-4" />}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-300">Current Password</label>
+                        <Input
+                          type="password"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          disabled={isUpdatingEmail}
+                          placeholder="Required to change email"
+                          icon={<Lock className="w-4 h-4" />}
+                        />
+                      </div>
+                      <Button type="submit" disabled={isUpdatingEmail} className="w-full gap-2">
+                        {isUpdatingEmail ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        ) : (
+                          <Save className="w-4 h-4" />
+                        )}
+                        {isUpdatingEmail ? 'Updating...' : 'Update Email'}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Lock className="w-5 h-5 text-primary" />
+                      </div>
+                      <CardTitle>Change Password</CardTitle>
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
+                    <CardDescription>Ensure your account is secure with a strong password.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleChangePassword} className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-300">Current Password</label>
+                        <Input
+                          type="password"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          disabled={isChangingPassword}
+                          icon={<Lock className="w-4 h-4" />}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-300">New Password</label>
+                        <Input
+                          type="password"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          disabled={isChangingPassword}
+                          placeholder="Min 8 characters"
+                          icon={<Lock className="w-4 h-4" />}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-300">Confirm New Password</label>
+                        <Input
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          disabled={isChangingPassword}
+                          icon={<Lock className="w-4 h-4" />}
+                        />
+                      </div>
+                      <Button type="submit" disabled={isChangingPassword} className="w-full gap-2">
+                        {isChangingPassword ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        ) : (
+                          <Save className="w-4 h-4" />
+                        )}
+                        {isChangingPassword ? 'Changing...' : 'Change Password'}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Card className="border-destructive/20 bg-destructive/5">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 bg-destructive/10 rounded-lg">
+                        <ShieldAlert className="w-5 h-5 text-destructive" />
+                      </div>
+                      <CardTitle className="text-destructive">Danger Zone</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Once you delete your account, there is no going back. All your tasks will be permanently deleted.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {!showDeleteConfirm ? (
+                      <Button
+                        variant="destructive"
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="w-full gap-2"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete Account
+                      </Button>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-destructive">
+                            Enter your password to confirm deletion
+                          </label>
+                          <Input
+                            type="password"
+                            value={deletePassword}
+                            onChange={(e) => setDeletePassword(e.target.value)}
+                            disabled={isDeletingAccount}
+                            className="border-destructive/30 focus:border-destructive"
+                            icon={<Lock className="w-4 h-4 text-destructive" />}
+                          />
+                        </div>
+                        <div className="flex gap-3">
+                          <Button
+                            variant="destructive"
+                            onClick={handleDeleteAccount}
+                            disabled={!deletePassword || isDeletingAccount}
+                            className="flex-1 gap-2"
+                          >
+                            {isDeletingAccount ? 'Deleting...' : 'Yes, Delete My Account'}
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => {
+                              setShowDeleteConfirm(false);
+                              setDeletePassword('');
+                            }}
+                            disabled={isDeletingAccount}
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </>
           )}
         </main>
       </div>

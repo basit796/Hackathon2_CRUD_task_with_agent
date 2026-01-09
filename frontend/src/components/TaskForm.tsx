@@ -2,6 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Task, TaskCreate, TaskUpdate, RecurringPattern } from '@/types/task';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { X, Save, Calendar, Clock, Repeat, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface TaskFormProps {
   task?: Task | null;
@@ -79,11 +83,11 @@ export default function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFo
         type: recurringType,
         time: recurringTime,
       };
-      
+
       if (recurringType === 'weekly') {
         recurring.day_of_week = dayOfWeek;
       }
-      
+
       submitData.recurring = recurring;
     } else {
       submitData.recurring = null;
@@ -95,162 +99,222 @@ export default function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFo
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 animate-fadeIn backdrop-blur-sm">
-      <div className="glass-effect rounded-2xl shadow-elegant-lg max-w-md w-full p-6 animate-scaleIn border border-gray-200">
-        <h2 className="text-2xl font-bold mb-6 text-gray-900">{task ? '✏️ Edit Task' : '➕ Create New Task'}</h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200 animate-slideDown">
-              ⚠️ {error}
-            </div>
-          )}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        className="bg-slate-900/90 border border-white/10 rounded-2xl shadow-2xl max-w-md w-full p-6 overflow-hidden relative"
+      >
+        {/* Background Gradient Blob */}
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-              placeholder="Enter task title"
-              maxLength={200}
-              disabled={isLoading}
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1.5">{title.length}/200 characters</p>
+        <div className="relative z-10">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              {task ? '✏️ Edit Task' : '✨ New Task'}
+            </h2>
+            <Button variant="ghost" size="icon" onClick={onCancel} className="rounded-full hover:bg-white/10 text-gray-400 hover:text-white">
+              <X className="w-5 h-5" />
+            </Button>
           </div>
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none transition-all"
-              placeholder="Enter task description (optional)"
-              rows={4}
-              maxLength={1000}
-              disabled={isLoading}
-            />
-            <p className="text-xs text-gray-500 mt-1.5">{description.length}/1000 characters</p>
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="p-3 bg-destructive/10 text-destructive rounded-lg text-sm border border-destructive/20 flex items-center gap-2"
+                >
+                  <AlertCircle className="w-4 h-4" /> {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          <div>
-            <label htmlFor="deadline" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Deadline (optional)
-            </label>
-            <input
-              id="deadline"
-              type="datetime-local"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-              disabled={isLoading}
-            />
-            {deadline && (
-              <button
-                type="button"
-                onClick={() => setDeadline('')}
-                className="text-xs text-primary hover:text-blue-700 mt-1.5 font-medium"
+            <div className="space-y-2">
+              <label htmlFor="title" className="text-sm font-medium text-gray-300">
+                Title <span className="text-destructive">*</span>
+              </label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="What needs to be done?"
+                maxLength={200}
                 disabled={isLoading}
-              >
-                Clear deadline
-              </button>
-            )}
-          </div>
+                required
+                className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:ring-primary/50"
+              />
+              <p className="text-xs text-slate-500 text-right">{title.length}/200</p>
+            </div>
 
-          <div className="border-t pt-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isRecurring}
-                onChange={(e) => setIsRecurring(e.target.checked)}
-                className="w-4 h-4 text-primary focus:ring-2 focus:ring-primary rounded transition-all"
+            <div className="space-y-2">
+              <label htmlFor="description" className="text-sm font-medium text-gray-300">
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-white placeholder:text-slate-500 resize-none transition-all min-h-[100px]"
+                placeholder="Add details..."
+                maxLength={1000}
                 disabled={isLoading}
               />
-              <span className="text-sm font-medium text-gray-700">🔁 Make this a recurring task</span>
-            </label>
-          </div>
+              <p className="text-xs text-slate-500 text-right">{description.length}/1000</p>
+            </div>
 
-          {isRecurring && (
-            <div className="space-y-4 p-4 bg-purple-50 rounded-lg border border-purple-200 animate-slideDown">
-              <div>
-                <label htmlFor="recurringType" className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Repeat
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="deadline" className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-primary" /> Deadline
                 </label>
-                <select
-                  id="recurringType"
-                  value={recurringType}
-                  onChange={(e) => setRecurringType(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                  disabled={isLoading}
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-              </div>
-
-              {recurringType === 'weekly' && (
-                <div>
-                  <label htmlFor="dayOfWeek" className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Day of Week
-                  </label>
-                  <select
-                    id="dayOfWeek"
-                    value={dayOfWeek}
-                    onChange={(e) => setDayOfWeek(Number(e.target.value))}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                <div className="flex gap-2">
+                  <Input
+                    id="deadline"
+                    type="datetime-local"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
                     disabled={isLoading}
-                  >
-                    {days.map((day, index) => (
-                      <option key={index} value={index}>{day}</option>
-                    ))}
-                  </select>
+                    className="bg-slate-800/50 border-slate-700 text-white [color-scheme:dark]"
+                  />
+                  {deadline && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeadline('')}
+                      className="text-slate-400 hover:text-white"
+                      title="Clear deadline"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
-              )}
-
-              <div>
-                <label htmlFor="recurringTime" className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Time
-                </label>
-                <input
-                  id="recurringTime"
-                  type="time"
-                  value={recurringTime}
-                  onChange={(e) => setRecurringTime(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                  disabled={isLoading}
-                />
               </div>
             </div>
-          )}
 
-          <div className="flex gap-3 pt-2">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 bg-primary text-white py-3 px-4 rounded-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] font-medium shadow-sm"
-            >
-              {isLoading ? '⏳ Saving...' : task ? '✅ Update Task' : '➕ Create Task'}
-            </button>
-            <button
-              type="button"
-              onClick={onCancel}
-              disabled={isLoading}
-              className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] font-medium"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+            <div className="border-t border-white/10 pt-4">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={isRecurring}
+                    onChange={(e) => setIsRecurring(e.target.checked)}
+                    className="peer sr-only"
+                    disabled={isLoading}
+                  />
+                  <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                </div>
+                <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors flex items-center gap-2">
+                  <Repeat className="w-4 h-4" /> Recurring Task
+                </span>
+              </label>
+            </div>
+
+            <AnimatePresence>
+              {isRecurring && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="space-y-4 p-4 bg-slate-800/30 rounded-lg border border-white/5 overflow-hidden"
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-gray-400">Frequency</label>
+                      <select
+                        value={recurringType}
+                        onChange={(e) => setRecurringType(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                        className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-sm text-white focus:ring-1 focus:ring-primary outline-none"
+                        disabled={isLoading}
+                      >
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-gray-400">Time</label>
+                      <div className="relative">
+                        <Clock className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-500" />
+                        <input
+                          type="time"
+                          value={recurringTime}
+                          onChange={(e) => setRecurringTime(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-md text-sm text-white focus:ring-1 focus:ring-primary outline-none [color-scheme:dark]"
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {recurringType === 'weekly' && (
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-gray-400">Day of Week</label>
+                      <div className="flex flex-wrap gap-1">
+                        {days.map((day, index) => (
+                          <button
+                            type="button"
+                            key={index}
+                            onClick={() => setDayOfWeek(index)}
+                            className={`px-2 py-1 text-xs rounded-md transition-colors ${dayOfWeek === index
+                                ? 'bg-primary text-white'
+                                : 'bg-slate-900 text-slate-400 hover:bg-slate-700'
+                              }`}
+                          >
+                            {day.slice(0, 3)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="flex-1"
+                size="lg"
+              >
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Saving...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Save className="w-4 h-4" />
+                    {task ? 'Update Task' : 'Create Task'}
+                  </span>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onCancel}
+                disabled={isLoading}
+                className="flex-1 bg-slate-800 hover:bg-slate-700 text-white"
+                size="lg"
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
