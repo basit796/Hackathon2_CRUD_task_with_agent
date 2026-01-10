@@ -1,7 +1,6 @@
 """FastAPI application entry point."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.database import create_db_and_tables
 from src.routes import auth_router, tasks_router, users_router
 
 app = FastAPI(
@@ -26,7 +25,11 @@ app.include_router(users_router)
 @app.on_event("startup")
 def on_startup():
     """Initialize database on application startup."""
-    create_db_and_tables()
+    try:
+        from src.database import create_db_and_tables
+        create_db_and_tables()
+    except Exception as e:
+        print(f"Warning: Could not initialize database: {e}")
 
 
 @app.get("/")

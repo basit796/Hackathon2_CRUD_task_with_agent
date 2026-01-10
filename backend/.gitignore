@@ -52,3 +52,4 @@ Thumbs.db
 
 # Alembic
 alembic/versions/__pycache__/
+.vercel
