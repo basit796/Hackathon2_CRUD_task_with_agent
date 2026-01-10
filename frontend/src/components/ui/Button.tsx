@@ -42,17 +42,25 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant, size, asChild = false, ...props }, ref) => {
-        const Comp = asChild ? Slot : "button"
+        if (asChild) {
+            return (
+                <Slot
+                    className={cn(buttonVariants({ variant, size, className }))}
+                    ref={ref}
+                    {...props}
+                />
+            )
+        }
 
-        // Wrap in motion for tap effect
-        const MotionComp = motion(Comp as any)
+        // Remove onAnimationStart if it exists to avoid conflict with framer-motion
+        const { onAnimationStart, ...buttonProps } = props as any;
 
         return (
-            <MotionComp
+            <motion.button
                 whileTap={{ scale: 0.95 }}
                 className={cn(buttonVariants({ variant, size, className }))}
                 ref={ref}
-                {...props}
+                {...buttonProps}
             />
         )
     }
