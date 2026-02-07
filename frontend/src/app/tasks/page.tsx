@@ -8,7 +8,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import TaskList from '@/components/TaskList';
 import TaskForm from '@/components/TaskForm';
 import { CopilotKit } from '@copilotkit/react-core';
-import { CopilotSidebar } from '@copilotkit/react-ui';
+import { CopilotPopup, CopilotSidebar } from '@copilotkit/react-ui';
 import '@copilotkit/react-ui/styles.css';
 import { checkRecurringTaskNotifications, requestNotificationPermission } from '@/lib/notifications';
 import { Button } from '@/components/ui/Button';
@@ -144,10 +144,10 @@ export default function TasksPage() {
         showDevConsole={false}
         agent="task_agent"
       >
-        <CopilotSidebar
+        <CopilotPopup
           labels={{
             title: '📝 Task Assistant',
-            initial: 'Hi! I can help you manage your tasks. Try: "Create a task for tomorrow" or "Show my tasks"',
+            initial: 'Hi! I can help you manage your tasks.',
           }}
           defaultOpen={false}
           className="copilot-sidebar"
@@ -330,7 +330,7 @@ export default function TasksPage() {
           </AnimatePresence>
         </main>
           </div>
-        </CopilotSidebar>
+        </CopilotPopup>
       </CopilotKit>
     </ProtectedRoute>
   );

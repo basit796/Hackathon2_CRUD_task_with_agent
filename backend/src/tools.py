@@ -8,13 +8,30 @@ from google.adk.tools import ToolContext
 
 logger = logging.getLogger(__name__)
 
+# Module-level variable to store user_id for requests
+# This is used as a fallback when user_id is not in ToolContext.state
+_request_user_id: Optional[str] = None
+
 
 def _get_user_id(tool_context: ToolContext) -> Optional[str]:
-    """Get user_id from ToolContext state."""
+    """
+    Get user_id from ToolContext state or fallback to module-level variable.
+    
+    Priority:
+    1. ToolContext.state['user_id'] (from ADK Runner sessions)
+    2. _request_user_id (module-level fallback)
+    """
+    # Try to get from ToolContext state first
     if tool_context and hasattr(tool_context, 'state'):
         user_id = tool_context.state.get('user_id')
         if user_id:
             return user_id
+    
+    # Fallback to module-level variable
+    global _request_user_id
+    if _request_user_id:
+        return _request_user_id
+    
     return None
 
 
