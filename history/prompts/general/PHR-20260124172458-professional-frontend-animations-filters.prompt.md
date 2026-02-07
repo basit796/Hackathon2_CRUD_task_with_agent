@@ -23,8 +23,8 @@ tests:
 ---
 
 ## Prompt
-
-hey give my frontend professional look and for this you need to work on small fixis in which first on wis in filter for all task and newest give good animation to it match it with theme going on
+/sp.implement
+give my frontend professional look and for this you need to work on small fixes in which first on wis in filter for all task and newest give good animation to it match it with theme going on
 
 ## Response snapshot
 

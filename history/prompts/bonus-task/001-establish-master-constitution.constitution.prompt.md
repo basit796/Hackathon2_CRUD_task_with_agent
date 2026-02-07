@@ -9,24 +9,24 @@ feature: none
 branch: main
 user: system
 command: constitution-update
-labels: ["constitution", "initialization", "hackathon", "spec-driven-development"]
+labels: ["task", "initialization", "hackathon", "spec-driven-development"]
 links:
   spec: null
   ticket: null
   adr: null
   pr: null
 files:
-  - .specify/memory/constitution.md
-  - history/prompts/constitution/001-establish-master-constitution.constitution.prompt.md
+  - .specify/memory.md
+  - history/prompts/001-establish-master-constitution.constitution.prompt.md
 tests:
-  - None - Constitution establishment
+  - None -  establishment
 ---
 
 ## Prompt
 
 # Constitution Update Request
 
-Create or update the project constitution with the provided Master Constitution for the "Evolution of Todo – 5-Phase Spec-Driven Hackathon System".
+Create or update the project with the provided Master Constitution for the "Evolution of Todo – 5-Phase Spec-Driven Hackathon System".
 
 ## Context
 This is a new Master Constitution that establishes the highest governing rules for implementing a Todo application across 5 strictly sequential phases using Spec-Driven Development.

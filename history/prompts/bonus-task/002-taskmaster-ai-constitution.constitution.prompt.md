@@ -1,22 +1,22 @@
 ---
 id: 002
-title: TaskMaster AI Constitution Update
-stage: constitution
+title: TaskMaster AI task Update
+stage: task
 date: 2026-02-07T19:31:24
 surface: copilot-cli
 model: gpt-4
-feature: constitution
+feature: task
 branch: main
 user: system
-command: constitution-update
-labels: [constitution, bonus-features, multi-language, voice-commands, accessibility]
+command: task-update
+labels: [task, bonus-features, multi-language, voice-commands, accessibility]
 links:
-  spec: .specify/memory/constitution.md
+  spec: .specify/memory.md
   ticket: N/A
   adr: N/A
   pr: N/A
 files:
-  - path: .specify/memory/constitution.md
+  - path: .specify/memory.md
     status: modified
     lines_changed: ~400
 tests:
@@ -26,7 +26,7 @@ tests:
 
 ## Prompt
 
-Create a project constitution for the TaskMaster AI application with bonus features implementation.
+Create a project task for the TaskMaster AI application with bonus features implementation.
 
 **Project Context:**
 - Full-stack todo application with AI agent

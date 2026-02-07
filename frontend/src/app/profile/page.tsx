@@ -3,16 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useChatPreference } from '@/context/ChatPreferenceContext';
 import { api, getErrorMessage } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card';
-import { User, Mail, Lock, ShieldAlert, ArrowLeft, LogOut, Save, Trash2 } from 'lucide-react';
+import { User, Mail, Lock, ShieldAlert, ArrowLeft, LogOut, Save, Trash2, MessageSquare, Mic } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
+  const { chatType, setChatType } = useChatPreference();
   const router = useRouter();
 
   const [email, setEmail] = useState('');
@@ -196,6 +198,81 @@ export default function ProfilePage() {
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-primary/10 rounded-lg">
+                        <MessageSquare className="w-5 h-5 text-primary" />
+                      </div>
+                      <CardTitle>Chat Preference</CardTitle>
+                    </div>
+                    <CardDescription>Choose which chat interface you prefer to use.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div 
+                      onClick={() => setChatType('custom')}
+                      className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                        chatType === 'custom' 
+                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20' 
+                          : 'border-slate-700 hover:border-slate-600 bg-slate-800/50'
+                      }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className={`p-3 rounded-lg ${chatType === 'custom' ? 'bg-primary/20' : 'bg-slate-700/50'}`}>
+                          <Mic className={`w-6 h-6 ${chatType === 'custom' ? 'text-primary' : 'text-slate-400'}`} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className={`font-semibold ${chatType === 'custom' ? 'text-primary' : 'text-slate-200'}`}>
+                              Custom Chat with Voice
+                            </h3>
+                            {chatType === 'custom' && (
+                              <span className="px-2 py-0.5 text-xs bg-primary text-white rounded-full">Active</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-slate-400">
+                            Use our custom chat interface with voice recognition support. Perfect for hands-free task management.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div 
+                      onClick={() => setChatType('default')}
+                      className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                        chatType === 'default' 
+                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20' 
+                          : 'border-slate-700 hover:border-slate-600 bg-slate-800/50'
+                      }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className={`p-3 rounded-lg ${chatType === 'default' ? 'bg-primary/20' : 'bg-slate-700/50'}`}>
+                          <MessageSquare className={`w-6 h-6 ${chatType === 'default' ? 'text-primary' : 'text-slate-400'}`} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className={`font-semibold ${chatType === 'default' ? 'text-primary' : 'text-slate-200'}`}>
+                              Default CopilotKit Chat
+                            </h3>
+                            {chatType === 'default' && (
+                              <span className="px-2 py-0.5 text-xs bg-primary text-white rounded-full">Active</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-slate-400">
+                            Use the standard CopilotKit popup interface with text-based interactions.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 bg-primary/10 rounded-lg">
                         <Mail className="w-5 h-5 text-primary" />
                       </div>
                       <CardTitle>Update Email</CardTitle>
@@ -241,7 +318,7 @@ export default function ProfilePage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.3 }}
               >
                 <Card>
                   <CardHeader>
@@ -302,7 +379,7 @@ export default function ProfilePage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.4 }}
               >
                 <Card className="border-destructive/20 bg-destructive/5">
                   <CardHeader>

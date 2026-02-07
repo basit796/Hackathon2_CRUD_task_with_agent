@@ -45,7 +45,7 @@ tests:
 ---
 
 ## Prompt
-
+/sp.implement
 Implement CopilotKit chat integration connecting frontend chatbox with backend agent.
 
 **Context:**

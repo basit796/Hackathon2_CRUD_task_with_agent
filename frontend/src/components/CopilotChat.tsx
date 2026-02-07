@@ -32,7 +32,13 @@ export function CopilotChat() {
     // Check if Web Speech API is supported
     if (typeof window !== 'undefined') {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      console.log('[Voice Debug] Checking Web Speech API support...');
+      console.log('[Voice Debug] SpeechRecognition available:', !!SpeechRecognition);
+      console.log('[Voice Debug] window.SpeechRecognition:', !!(window as any).SpeechRecognition);
+      console.log('[Voice Debug] window.webkitSpeechRecognition:', !!(window as any).webkitSpeechRecognition);
+      
       if (SpeechRecognition) {
+        console.log('[Voice Debug] ✅ Web Speech API is SUPPORTED - initializing...');
         setVoiceSupported(true);
         recognitionRef.current = new SpeechRecognition();
         recognitionRef.current.continuous = false;
@@ -41,20 +47,29 @@ export function CopilotChat() {
         
         recognitionRef.current.onresult = (event: any) => {
           const transcript = event.results[0][0].transcript;
+          console.log('[Voice Debug] Transcription result:', transcript);
           setInput(transcript);
           setIsListening(false);
         };
         
         recognitionRef.current.onerror = (event: any) => {
-          console.error('Speech recognition error:', event.error);
+          console.error('[Voice Debug] Speech recognition error:', event.error);
           setIsListening(false);
           setError('Voice recognition failed. Please try again.');
         };
         
         recognitionRef.current.onend = () => {
+          console.log('[Voice Debug] Recognition ended');
           setIsListening(false);
         };
+        
+        console.log('[Voice Debug] Recognition initialized successfully');
+      } else {
+        console.log('[Voice Debug] ❌ Web Speech API NOT supported in this browser');
+        console.log('[Voice Debug] Browser:', navigator.userAgent);
       }
+    } else {
+      console.log('[Voice Debug] ⚠️ Running in server-side context (window undefined)');
     }
     
     // Load chat history from sessionStorage
@@ -150,18 +165,28 @@ export function CopilotChat() {
   };
 
   const toggleVoiceRecognition = () => {
-    if (!recognitionRef.current) return;
+    console.log('[Voice Debug] toggleVoiceRecognition called');
+    console.log('[Voice Debug] recognitionRef.current:', !!recognitionRef.current);
+    console.log('[Voice Debug] isListening:', isListening);
+    
+    if (!recognitionRef.current) {
+      console.error('[Voice Debug] ❌ Recognition not initialized');
+      return;
+    }
 
     if (isListening) {
+      console.log('[Voice Debug] Stopping recognition...');
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
       try {
+        console.log('[Voice Debug] Starting recognition...');
         recognitionRef.current.start();
         setIsListening(true);
         setError(null);
+        console.log('[Voice Debug] ✅ Recognition started successfully');
       } catch (err) {
-        console.error('Failed to start voice recognition:', err);
+        console.error('[Voice Debug] ❌ Failed to start voice recognition:', err);
         setError('Failed to start voice recognition. Please check microphone permissions.');
       }
     }
@@ -288,6 +313,10 @@ export function CopilotChat() {
 
             {/* Input */}
             <div className="p-4 border-t border-slate-800">
+              {/* Debug info - remove after testing */}
+              <div className="text-xs text-slate-500 mb-2">
+                Voice Support: {voiceSupported ? '✅ Enabled' : '❌ Not Available'} | Check browser console for details
+              </div>
               <div className="flex items-end gap-2">
                 <input
                   ref={inputRef}

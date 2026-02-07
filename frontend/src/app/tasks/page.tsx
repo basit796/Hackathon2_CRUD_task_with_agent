@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useChatPreference } from '@/context/ChatPreferenceContext';
 import { api, getErrorMessage } from '@/lib/api';
 import { Task, TaskCreate, TaskUpdate, FilterType, SortType } from '@/types/task';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -10,6 +11,7 @@ import TaskForm from '@/components/TaskForm';
 import { CopilotKit } from '@copilotkit/react-core';
 import { CopilotPopup, CopilotSidebar } from '@copilotkit/react-ui';
 import '@copilotkit/react-ui/styles.css';
+import { CopilotChat } from '@/components/CopilotChat';
 import { checkRecurringTaskNotifications, requestNotificationPermission } from '@/lib/notifications';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -18,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TasksPage() {
   const { user, logout } = useAuth();
+  const { chatType } = useChatPreference();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -144,14 +147,93 @@ export default function TasksPage() {
         showDevConsole={false}
         agent="task_agent"
       >
-        <CopilotPopup
-          labels={{
-            title: '📝 Task Assistant',
-            initial: 'Hi! I can help you manage your tasks.',
-          }}
-          defaultOpen={false}
-          className="copilot-sidebar"
-        >
+        {chatType === 'default' ? (
+          <CopilotPopup
+            labels={{
+              title: '📝 Task Assistant',
+              initial: 'Hi! I can help you manage your tasks.',
+            }}
+            defaultOpen={false}
+            className="copilot-sidebar"
+          >
+            <TaskPageContent
+              user={user}
+              logout={logout}
+              tasks={tasks}
+              isLoading={isLoading}
+              error={error}
+              filter={filter}
+              setFilter={setFilter}
+              sort={sort}
+              setSort={setSort}
+              search={search}
+              setSearch={setSearch}
+              showForm={showForm}
+              setShowForm={setShowForm}
+              editingTask={editingTask}
+              handleToggleTask={handleToggleTask}
+              handleDeleteTask={handleDeleteTask}
+              handleEditTask={handleEditTask}
+              handleSubmitTask={handleSubmitTask}
+              handleCancelForm={handleCancelForm}
+              isSubmitting={isSubmitting}
+            />
+          </CopilotPopup>
+        ) : (
+          <>
+            <TaskPageContent
+              user={user}
+              logout={logout}
+              tasks={tasks}
+              isLoading={isLoading}
+              error={error}
+              filter={filter}
+              setFilter={setFilter}
+              sort={sort}
+              setSort={setSort}
+              search={search}
+              setSearch={setSearch}
+              showForm={showForm}
+              setShowForm={setShowForm}
+              editingTask={editingTask}
+              handleToggleTask={handleToggleTask}
+              handleDeleteTask={handleDeleteTask}
+              handleEditTask={handleEditTask}
+              handleSubmitTask={handleSubmitTask}
+              handleCancelForm={handleCancelForm}
+              isSubmitting={isSubmitting}
+            />
+            <CopilotChat />
+          </>
+        )}
+      </CopilotKit>
+    </ProtectedRoute>
+  );
+}
+
+function TaskPageContent({
+  user,
+  logout,
+  tasks,
+  isLoading,
+  error,
+  filter,
+  setFilter,
+  sort,
+  setSort,
+  search,
+  setSearch,
+  showForm,
+  setShowForm,
+  editingTask,
+  handleToggleTask,
+  handleDeleteTask,
+  handleEditTask,
+  handleSubmitTask,
+  handleCancelForm,
+  isSubmitting,
+}: any) {
+  return (
       <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
         {/* Background Gradients */}
         <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
@@ -330,11 +412,7 @@ export default function TasksPage() {
           </AnimatePresence>
         </main>
           </div>
-        </CopilotPopup>
-      </CopilotKit>
-    </ProtectedRoute>
   );
 }
-
 
 
