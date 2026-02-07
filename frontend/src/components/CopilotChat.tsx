@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { sendChatMessage, clearChatHistory } from '@/lib/chat';
-import { MessageSquare, Send, X, Loader2, Trash2 } from 'lucide-react';
+import { MessageSquare, Send, X, Loader2, Trash2, Mic, MicOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
@@ -20,11 +20,42 @@ export function CopilotChat() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     setMounted(true);
+    
+    // Check if Web Speech API is supported
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        setVoiceSupported(true);
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = false;
+        recognitionRef.current.lang = 'en-US'; // Default to English, can detect Urdu too
+        
+        recognitionRef.current.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          setInput(transcript);
+          setIsListening(false);
+        };
+        
+        recognitionRef.current.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+          setError('Voice recognition failed. Please try again.');
+        };
+        
+        recognitionRef.current.onend = () => {
+          setIsListening(false);
+        };
+      }
+    }
     
     // Load chat history from sessionStorage
     const savedHistory = sessionStorage.getItem('chat_history');
@@ -115,6 +146,24 @@ export function CopilotChat() {
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to clear history');
+    }
+  };
+
+  const toggleVoiceRecognition = () => {
+    if (!recognitionRef.current) return;
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to start voice recognition:', err);
+        setError('Failed to start voice recognition. Please check microphone permissions.');
+      }
     }
   };
 
@@ -246,10 +295,28 @@ export function CopilotChat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask me anything..."
-                  disabled={isLoading}
+                  placeholder={isListening ? "Listening..." : "Ask me anything..."}
+                  disabled={isLoading || isListening}
                   className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                 />
+                {voiceSupported && (
+                  <button
+                    onClick={toggleVoiceRecognition}
+                    disabled={isLoading}
+                    className={`p-2 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      isListening
+                        ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                        : 'bg-slate-700 hover:bg-slate-600'
+                    }`}
+                    title={isListening ? "Stop listening" : "Start voice input"}
+                  >
+                    {isListening ? (
+                      <MicOff className="w-5 h-5 text-white" />
+                    ) : (
+                      <Mic className="w-5 h-5 text-white" />
+                    )}
+                  </button>
+                )}
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || isLoading}

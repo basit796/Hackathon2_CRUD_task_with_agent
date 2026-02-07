@@ -42,6 +42,52 @@ Phase I implemented a console-only in-memory application. See `/src` for Phase I
 
 ---
 
+## 🎉 Bonus Features (+300 Points)
+
+### 1. Multi-Language Support - Urdu (+100 Points) ✅
+
+**Features:**
+- Automatic language detection (English/Urdu)
+- Agent responds in user's language
+- Full Urdu task management support
+- Recurring tasks in Urdu
+- Code-switching support
+
+**Usage:**
+```
+English: "Show me all my tasks"
+Urdu:    "میرے کام دکھائیں"
+```
+
+### 2. Voice Commands (+200 Points) ✅
+
+**Features:**
+- Web Speech API integration
+- Microphone button in chat interface
+- Speech-to-text conversion
+- Visual feedback (red pulse when listening)
+- Works with both English and Urdu
+
+**How to Use:**
+1. Click microphone button (🎤) in chat
+2. Allow microphone permission
+3. Speak your message clearly
+4. Text appears automatically
+5. Send or edit before sending
+
+**Browser Support:**
+- ✅ Chrome (Full support)
+- ✅ Edge (Full support)
+- ✅ Safari (Full support)
+- ⚠️ Firefox (Limited, requires flag)
+
+**Documentation:**
+- See `BONUS_FEATURES.md` for details
+- See `TESTING_GUIDE.md` for testing
+- See `START_TESTING.md` for quick start
+
+---
+
 ## Tech Stack
 
 ### Backend
