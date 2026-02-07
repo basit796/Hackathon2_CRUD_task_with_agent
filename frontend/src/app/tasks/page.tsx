@@ -161,6 +161,12 @@ export default function TasksPage() {
         handleCancelForm={handleCancelForm}
         isSubmitting={isSubmitting}
       />
+      
+      {/* AI Chat Assistant - Floating Button & Popup */}
+      <CustomChatbox 
+        userId={user?.id || ''} 
+        apiUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}
+      />
     </ProtectedRoute>
   );
 }
@@ -366,13 +372,6 @@ function TaskPageContent({
           </AnimatePresence>
         </main>
       </div>
-
-      {/* AI Chat Assistant - Floating Button & Popup */}
-      <CustomChatbox 
-        userId={user?.id || ''} 
-        apiUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}
-      />
-    </ProtectedRoute>
   );
 }
 
