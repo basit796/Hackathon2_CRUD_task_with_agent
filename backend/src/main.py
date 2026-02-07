@@ -1,8 +1,8 @@
 """FastAPI application entry point."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.routes import auth_router, tasks_router, users_router
-from src.routes.adk_agent import router as agent_router
+from src.routes import auth_router, tasks_router, users_router, adk_agent_router
+from src.routes.copilotkit import setup_copilotkit_routes
 
 app = FastAPI(
     title="Todo API",
@@ -21,7 +21,10 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(tasks_router)
 app.include_router(users_router)
-app.include_router(agent_router)
+app.include_router(adk_agent_router)
+
+# Setup CopilotKit routes using the helper function
+setup_copilotkit_routes(app)
 
 
 @app.on_event("startup")

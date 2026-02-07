@@ -7,7 +7,9 @@ import { Task, TaskCreate, TaskUpdate, FilterType, SortType } from '@/types/task
 import ProtectedRoute from '@/components/ProtectedRoute';
 import TaskList from '@/components/TaskList';
 import TaskForm from '@/components/TaskForm';
-import { CopilotChat } from '@/components/CopilotChat';
+import { CopilotKit } from '@copilotkit/react-core';
+import { CopilotSidebar } from '@copilotkit/react-ui';
+import '@copilotkit/react-ui/styles.css';
 import { checkRecurringTaskNotifications, requestNotificationPermission } from '@/lib/notifications';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -137,6 +139,19 @@ export default function TasksPage() {
 
   return (
     <ProtectedRoute>
+      <CopilotKit
+        runtimeUrl="/api/copilotkit"
+        showDevConsole={false}
+        agent="task_agent"
+      >
+        <CopilotSidebar
+          labels={{
+            title: '📝 Task Assistant',
+            initial: 'Hi! I can help you manage your tasks. Try: "Create a task for tomorrow" or "Show my tasks"',
+          }}
+          defaultOpen={false}
+          className="copilot-sidebar"
+        >
       <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
         {/* Background Gradients */}
         <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
@@ -314,9 +329,12 @@ export default function TasksPage() {
             )}
           </AnimatePresence>
         </main>
-
-        <CopilotChat />
-      </div>
+          </div>
+        </CopilotSidebar>
+      </CopilotKit>
     </ProtectedRoute>
   );
 }
+
+
+
