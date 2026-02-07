@@ -8,10 +8,7 @@ import { Task, TaskCreate, TaskUpdate, FilterType, SortType } from '@/types/task
 import ProtectedRoute from '@/components/ProtectedRoute';
 import TaskList from '@/components/TaskList';
 import TaskForm from '@/components/TaskForm';
-import { CopilotKit } from '@copilotkit/react-core';
-import { CopilotPopup, CopilotSidebar } from '@copilotkit/react-ui';
-import '@copilotkit/react-ui/styles.css';
-import { CopilotChat } from '@/components/CopilotChat';
+import CustomChatbox from '@/components/CustomChatbox';
 import { checkRecurringTaskNotifications, requestNotificationPermission } from '@/lib/notifications';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -142,71 +139,28 @@ export default function TasksPage() {
 
   return (
     <ProtectedRoute>
-      <CopilotKit
-        runtimeUrl="/api/copilotkit"
-        showDevConsole={false}
-        agent="task_agent"
-      >
-        {chatType === 'default' ? (
-          <CopilotPopup
-            labels={{
-              title: '📝 Task Assistant',
-              initial: 'Hi! I can help you manage your tasks.',
-            }}
-            defaultOpen={false}
-            className="copilot-sidebar"
-          >
-            <TaskPageContent
-              user={user}
-              logout={logout}
-              tasks={tasks}
-              isLoading={isLoading}
-              error={error}
-              filter={filter}
-              setFilter={setFilter}
-              sort={sort}
-              setSort={setSort}
-              search={search}
-              setSearch={setSearch}
-              showForm={showForm}
-              setShowForm={setShowForm}
-              editingTask={editingTask}
-              handleToggleTask={handleToggleTask}
-              handleDeleteTask={handleDeleteTask}
-              handleEditTask={handleEditTask}
-              handleSubmitTask={handleSubmitTask}
-              handleCancelForm={handleCancelForm}
-              isSubmitting={isSubmitting}
-            />
-          </CopilotPopup>
-        ) : (
-          <>
-            <TaskPageContent
-              user={user}
-              logout={logout}
-              tasks={tasks}
-              isLoading={isLoading}
-              error={error}
-              filter={filter}
-              setFilter={setFilter}
-              sort={sort}
-              setSort={setSort}
-              search={search}
-              setSearch={setSearch}
-              showForm={showForm}
-              setShowForm={setShowForm}
-              editingTask={editingTask}
-              handleToggleTask={handleToggleTask}
-              handleDeleteTask={handleDeleteTask}
-              handleEditTask={handleEditTask}
-              handleSubmitTask={handleSubmitTask}
-              handleCancelForm={handleCancelForm}
-              isSubmitting={isSubmitting}
-            />
-            <CopilotChat />
-          </>
-        )}
-      </CopilotKit>
+      <TaskPageContent
+        user={user}
+        logout={logout}
+        tasks={tasks}
+        isLoading={isLoading}
+        error={error}
+        filter={filter}
+        setFilter={setFilter}
+        sort={sort}
+        setSort={setSort}
+        search={search}
+        setSearch={setSearch}
+        showForm={showForm}
+        setShowForm={setShowForm}
+        editingTask={editingTask}
+        handleToggleTask={handleToggleTask}
+        handleDeleteTask={handleDeleteTask}
+        handleEditTask={handleEditTask}
+        handleSubmitTask={handleSubmitTask}
+        handleCancelForm={handleCancelForm}
+        isSubmitting={isSubmitting}
+      />
     </ProtectedRoute>
   );
 }
@@ -411,7 +365,15 @@ function TaskPageContent({
             )}
           </AnimatePresence>
         </main>
-          </div>
+
+        {/* AI Chat Assistant */}
+        <aside className="fixed bottom-4 right-4 w-96 h-[32rem] z-50 shadow-2xl rounded-xl overflow-hidden">
+          <CustomChatbox 
+            userId={user?.id || ''} 
+            apiUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}
+          />
+        </aside>
+      </div>
   );
 }
 
